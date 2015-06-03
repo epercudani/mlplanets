@@ -32,65 +32,13 @@ public class Application {
     }
 
     @Autowired
-    SolarSystemDAO ssDAO;
-
-    @Autowired
-    CelestialObjectDAO coDAO;
-
-    @Autowired
-    CelestialObjectService coService;
-
-    @Autowired
-    OrbitService orbitService;
+    private ApplicationInitializer initializer;
 
     private void run() {
-        initializeCelestialObjects();
-        test();
+        initializer.initialize();
     }
 
-    @Transactional
-    private void initializeCelestialObjects() {
-
-        System.out.println("ssDAO " + ssDAO);
-        System.out.println("coDAO " + coDAO);
-
-        SolarSystem ss = null;
-        SolarSystem solarSystem = ssDAO.findByName("ML");
-
-        if (solarSystem == null) {
-            ss = new SolarSystem();
-            ss.setName("ML");
-            ssDAO.add(ss);
-        }
-
-        CelestialObject co;
-
-        co = coDAO.findByName("Sol");
-        if (co == null) {
-            co = CelestialObjectFactory.create("Sol", OrbitFactory.create(0, 0), ss);
-            coDAO.add(co);
-        }
-
-        co = coDAO.findByName("Ferengi");
-        if (co == null) {
-            co = CelestialObjectFactory.create("Ferengi", OrbitFactory.create(500, -1), ss);
-            coDAO.add(co);
-        }
-
-        co = coDAO.findByName("Betasoide");
-        if (co == null) {
-            co = CelestialObjectFactory.create("Betasoide", OrbitFactory.create(2000, -3), ss);
-            coDAO.add(co);
-        }
-
-        co = coDAO.findByName("Vulcano");
-        if (co == null) {
-            co = CelestialObjectFactory.create("Vulcano", OrbitFactory.create(1000, 5), ss);
-            coDAO.add(co);
-        }
-    }
-
-    @Transactional
+    /*
     public void test() {
 
         SolarSystem ss = ssDAO.getAll().get(0);
@@ -106,4 +54,5 @@ public class Application {
             }
         }
     }
+    */
 }
