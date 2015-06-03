@@ -15,5 +15,5 @@
     <import resource="services.xml" />
 
     <bean class="mlplanets.Application" />
-    <bean class="mlplanets.ApplicationInitializer" />
+    <bean class="mlplanets.ApplicationInitializerImpl" />
 </beans>
