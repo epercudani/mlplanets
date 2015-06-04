@@ -7,5 +7,6 @@
 
         <bean class="mlplanets.dao.impl.CelestialObjectDAOImpl" />
         <bean class="mlplanets.dao.impl.SolarSystemDAOImpl" />
+        <bean class="mlplanets.dao.impl.PredictionDAOImpl" />
 
 </beans>

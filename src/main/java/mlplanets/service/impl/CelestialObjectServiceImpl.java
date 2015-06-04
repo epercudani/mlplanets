@@ -13,7 +13,7 @@ public class CelestialObjectServiceImpl implements CelestialObjectService {
     OrbitService orbitService;
 
     @Override
-    public Point2D getPositionForDay(CelestialObject object, int day) {
+    public Point2D getPositionForDay(CelestialObject object, long day) {
         return orbitService.getPositionForDay(object.getOrbit(), day);
     }
 }

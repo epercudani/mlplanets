@@ -1,5 +1,6 @@
 package mlplanets.service.impl;
 
+import mlplanets.dao.PredictionDAO;
 import mlplanets.dao.SolarSystemDAO;
 import mlplanets.domain.CelestialObject;
 import mlplanets.domain.SolarSystem;
@@ -12,25 +13,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.NotSupportedException;
-import java.util.List;
-import java.util.Set;
 
 public class SolarSystemServiceImpl implements SolarSystemService {
 
     private static final Logger log = LoggerFactory.getLogger(SolarSystemServiceImpl.class);
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private WeatherPredictionStrategy weatherPredictionStrategy;
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private SolarSystemDAO ssDAO;
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private OrbitService orbitService;
+
+    @Autowired
+    @SuppressWarnings("UnusedDeclaration")
+    private PredictionDAO predictionDAO;
 
     @Override
     @Transactional(readOnly = true)
-    public void predictWeatherForSystem(String name) {
+    public void predictWeatherForSystem(String name, long startingDay) {
 
         SolarSystem solarSystem = ssDAO.findByName(name);
 
@@ -38,11 +44,16 @@ public class SolarSystemServiceImpl implements SolarSystemService {
             throw new IllegalArgumentException("El sistema solar " + name + "no existe");
         }
 
-        int daysInLongestYear = getDaysInLongestYearForSystem(solarSystem);
+        long daysInLongesYear = getDaysInLongestYearForSystem(solarSystem);
+        Long lastPredictedDay = predictionDAO.getLastPredictedDay(solarSystem);
+        if (lastPredictedDay == null) {
+            lastPredictedDay = 0L;
+        }
+        long predictUpTo = startingDay + (daysInLongesYear * 10);
 
-        for (int i = 0; i <= daysInLongestYear; ++i) {
+        for (long i = lastPredictedDay; i <= predictUpTo; ++i) {
 
-            log.info("Day " + i + ":");
+            log.info("Prediction for day " + i + ":");
 
             try {
                 weatherPredictionStrategy.predict(i, solarSystem.getCelestialObjects());
@@ -57,9 +68,9 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         Obtiene la cantidad de dias que le toma al planeta con orbita mas larga dar una vuelta completa
             alrededor del centro.
      */
-    private int getDaysInLongestYearForSystem(SolarSystem system) {
+    private long getDaysInLongestYearForSystem(SolarSystem system) {
 
-        int daysInLongestYear = 0, daysInYear;
+        long daysInLongestYear = 0, daysInYear;
 
         for (CelestialObject object : system.getCelestialObjects()) {
 

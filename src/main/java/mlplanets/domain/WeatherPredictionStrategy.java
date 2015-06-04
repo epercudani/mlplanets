@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface WeatherPredictionStrategy {
 
-    WeatherType predict(int day, List<CelestialObject> celestialObjects) throws NotSupportedException;
+    WeatherType predict(long day, List<CelestialObject> celestialObjects) throws NotSupportedException;
 }

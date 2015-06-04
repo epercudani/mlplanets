@@ -2,7 +2,7 @@ package mlplanets.domain;
 
 import mlplanets.enums.WeatherType;
 import mlplanets.service.CelestialObjectService;
-import mlplanets.util.Triangle;
+import mlplanets.util.Triangle2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class WeatherPredictionByPlanetAligmnent implements WeatherPredictionStra
     CelestialObjectService coService;
 
     @Override
-    public WeatherType predict(int day, List<CelestialObject> celestialObjects) throws NotSupportedException {
+    public WeatherType predict(long day, List<CelestialObject> celestialObjects) throws NotSupportedException {
 
         if (celestialObjects.size() != SUPPORTED_OBJECTS_QUANTITY) {
             throw new NotSupportedException("La estrategia de prediccion actual solo soporta sistemas con " +
@@ -29,19 +29,81 @@ public class WeatherPredictionByPlanetAligmnent implements WeatherPredictionStra
         }
 
         Point2D[] todayPositionsPoints = getPositionsAsPointsArray(day, celestialObjects);
-        Triangle todayTriangle = new Triangle(todayPositionsPoints);
+        Triangle2D todayTriangle = new Triangle2D(todayPositionsPoints);
 
         Point2D[] tomorrowPositionsPoints = getPositionsAsPointsArray(day + 1, celestialObjects);
-        Triangle tomorrowTriangle = new Triangle(tomorrowPositionsPoints);
+        Triangle2D tomorrowTriangle = new Triangle2D(tomorrowPositionsPoints);
 
-        if (isObjectsAligned(todayTriangle, tomorrowTriangle)) {
-            log.info("Planetas alineados");
+        if (areObjectsAligned(todayTriangle, tomorrowTriangle)) {
+            if (isObjectsAlignedWithOrbitCenter(todayTriangle, tomorrowTriangle)) {
+                log.info("Planetas alineados con el sol");
+            } else {
+                log.info("Planetas alineados");
+            }
+        } else if (todayTriangle.contains(new Point2D.Double(0, 0))) {
+            if (isCyclicSystem(celestialObjects) && isTriangleWithMaxPerimeter(todayTriangle, celestialObjects)) {
+                log.info("Planetas encierran el sol con perímetro máximo");
+            } else {
+                log.info("Planetas encierran el sol");
+            }
         }
 
         return null;
     }
 
-    private Point2D[] getPositionsAsPointsArray(int day, List<CelestialObject> celestialObjects) {
+    private int getMaxOrbitPeriod(List<CelestialObject> celestialObjects) {
+
+        int result = -1;
+
+        for (CelestialObject celestialObject : celestialObjects) {
+
+            int period = 360 / Math.abs(celestialObject.getOrbit().getAngularSpeed());
+
+            if (period > result) {
+                result = period;
+            }
+        }
+
+        return result;
+    }
+
+    private double getMaxTrianglePerimeter(List<CelestialObject> celestialObjects) throws NotSupportedException {
+
+        int maxPeriod = getMaxOrbitPeriod(celestialObjects);
+        double result = -1;
+
+        for (int i = 0; i < maxPeriod; ++i) {
+            Point2D[] todayPositionsPoints = getPositionsAsPointsArray(i, celestialObjects);
+            Triangle2D todayTriangle = new Triangle2D(todayPositionsPoints);
+            if (todayTriangle.getPerimeter() - result > Triangle2D.EPSILON) {
+                result = todayTriangle.getPerimeter();
+            }
+        }
+
+        return result;
+    }
+
+    private boolean isCyclicSystem(List<CelestialObject> celestialObjects) {
+
+        int maxPeriod = getMaxOrbitPeriod(celestialObjects);
+
+        for (CelestialObject celestialObject : celestialObjects) {
+
+            int period = 360 / Math.abs(celestialObject.getOrbit().getAngularSpeed());
+
+            if (maxPeriod % period != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isTriangleWithMaxPerimeter(Triangle2D triangle, List<CelestialObject> celestialObjects) throws NotSupportedException {
+        return (Math.abs(triangle.getPerimeter() - getMaxTrianglePerimeter(celestialObjects)) < Triangle2D.EPSILON);
+    }
+
+    private Point2D[] getPositionsAsPointsArray(long day, List<CelestialObject> celestialObjects) {
 
         Point2D[] positionsList = new Point2D[SUPPORTED_OBJECTS_QUANTITY];
 
@@ -55,14 +117,40 @@ public class WeatherPredictionByPlanetAligmnent implements WeatherPredictionStra
         return positionsList;
     }
 
-    private boolean isObjectsAligned(Triangle todayTriangle, Triangle tomorrowTriangle) {
+    private boolean areObjectsAligned(Triangle2D todayTriangle, Triangle2D tomorrowTriangle) {
 
-        if (Math.abs(todayTriangle.getArea()) <= Triangle.EPSILON) {
-            return true;
-        } else if (Math.abs(tomorrowTriangle.getArea()) <= Triangle.EPSILON) {
+        return
+                (Math.abs(todayTriangle.getArea()) <= Triangle2D.EPSILON) ||
+                (
+                        (Math.abs(tomorrowTriangle.getArea()) > Triangle2D.EPSILON) &&
+                                (Math.signum(todayTriangle.getArea()) != Math.signum(tomorrowTriangle.getArea()))
+                );
+    }
+
+    private boolean isObjectsAlignedWithOrbitCenter(Triangle2D todayTriangle, Triangle2D tomorrowTriangle) {
+
+        if (Math.abs(tomorrowTriangle.getArea()) <= Triangle2D.EPSILON) {
             return false;
         } else {
-            return Math.signum(todayTriangle.getArea()) != Math.signum(tomorrowTriangle.getArea());
+
+            Triangle2D tempTodayTriangle = new Triangle2D(todayTriangle);
+            Triangle2D tempTomorrowTriangle = new Triangle2D(tomorrowTriangle);
+
+            for (int i = 0; i < 3; ++i) {
+
+                tempTodayTriangle.setPoints(todayTriangle.getPoints());
+                tempTodayTriangle.getPoints()[i].setLocation(0.0, 0.0);
+
+                tempTomorrowTriangle.setPoints(tomorrowTriangle.getPoints());
+                tempTomorrowTriangle.getPoints()[i].setLocation(0.0, 0.0);
+
+                if (Math.signum(tempTodayTriangle.getArea()) != Math.signum(tempTomorrowTriangle.getArea())) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
+
 }

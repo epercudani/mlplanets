@@ -10,7 +10,7 @@ public class OrbitServiceImpl implements OrbitService {
     private static final int CIRCLE_DEGRESS = 360;
 
     @Override
-    public Point2D getPositionForDay(Orbit orbit, int day) {
+    public Point2D getPositionForDay(Orbit orbit, long day) {
         return new Point2D.Double(
                 orbit.getDistance() * Math.cos(getOrbitAngleInRadians(orbit, day)),
                 orbit.getDistance() * Math.sin(getOrbitAngleInRadians(orbit, day))
@@ -18,12 +18,12 @@ public class OrbitServiceImpl implements OrbitService {
     }
 
     @Override
-    public int getYearDurationInDays(Orbit orbit) {
+    public long getYearDurationInDays(Orbit orbit) {
         // 360 grados / velocidad angular en grados
         return CIRCLE_DEGRESS / Math.abs(orbit.getAngularSpeed());
     }
 
-    private double getOrbitAngleInRadians(Orbit orbit, int day) {
+    private double getOrbitAngleInRadians(Orbit orbit, long day) {
         return Math.toRadians(orbit.getAngularSpeed() * day);
     }
 }
