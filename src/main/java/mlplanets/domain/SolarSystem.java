@@ -1,25 +1,21 @@
 package mlplanets.domain;
 
-import mlplanets.enums.WeatherType;
-
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.OrderBy;
+import java.util.ArrayList;
+import java.util.List;
 
 @javax.persistence.Entity
 public class SolarSystem extends Entity {
 
-    @Transient
-    WeatherPredictionStrategy weatherPredictionStrategy = new WeatherPredictionByAligmnent();
-
     @Column(nullable = false)
-    public String name;
+    private String name;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "solarSystem")
-    public Set<CelestialObject> celestialObjects = new HashSet<CelestialObject>();
+    @OrderBy("orbit.distance")
+    private List<CelestialObject> celestialObjects = new ArrayList<CelestialObject>();
 
     public String getName() {
         return name;
@@ -29,15 +25,11 @@ public class SolarSystem extends Entity {
         this.name = name;
     }
 
-    public Set<CelestialObject> getCelestialObjects() {
+    public List<CelestialObject> getCelestialObjects() {
         return celestialObjects;
     }
 
-    public void setCelestialObjects(Set<CelestialObject> celestialObjects) {
+    public void setCelestialObjects(List<CelestialObject> celestialObjects) {
         this.celestialObjects = celestialObjects;
-    }
-
-    public WeatherType predictWeather(int day) {
-        return weatherPredictionStrategy.predict(day, celestialObjects);
     }
 }

@@ -20,7 +20,7 @@ public class OrbitServiceImpl implements OrbitService {
     @Override
     public int getYearDurationInDays(Orbit orbit) {
         // 360 grados / velocidad angular en grados
-        return CIRCLE_DEGRESS / orbit.getAngularSpeed();
+        return CIRCLE_DEGRESS / Math.abs(orbit.getAngularSpeed());
     }
 
     private double getOrbitAngleInRadians(Orbit orbit, int day) {

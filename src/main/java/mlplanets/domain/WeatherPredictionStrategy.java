@@ -2,9 +2,10 @@ package mlplanets.domain;
 
 import mlplanets.enums.WeatherType;
 
-import java.util.Collection;
+import javax.transaction.NotSupportedException;
+import java.util.List;
 
 public interface WeatherPredictionStrategy {
 
-    WeatherType predict(int day, Collection<CelestialObject> celestialObjects);
+    WeatherType predict(int day, List<CelestialObject> celestialObjects) throws NotSupportedException;
 }

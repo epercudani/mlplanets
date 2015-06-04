@@ -29,22 +29,15 @@ public class ApplicationInitializerImpl implements ApplicationInitializer {
     @Override
     public void initialize() {
 
-        SolarSystem ss = null;
-        SolarSystem solarSystem = ssDAO.findByName("ML");
+        SolarSystem ss = ssDAO.findByName("ML");
 
-        if (solarSystem == null) {
+        if (ss == null) {
             ss = new SolarSystem();
             ss.setName("ML");
             ssDAO.add(ss);
         }
 
         CelestialObject co;
-
-        co = coDAO.findByName("Sol");
-        if (co == null) {
-            co = CelestialObjectFactory.create("Sol", OrbitFactory.create(0, 0), ss);
-            coDAO.add(co);
-        }
 
         co = coDAO.findByName("Ferengi");
         if (co == null) {
