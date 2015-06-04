@@ -34,21 +34,25 @@ public class WeatherPredictionByPlanetAligmnent implements WeatherPredictionStra
         Point2D[] tomorrowPositionsPoints = getPositionsAsPointsArray(day + 1, celestialObjects);
         Triangle2D tomorrowTriangle = new Triangle2D(tomorrowPositionsPoints);
 
+        WeatherType result;
+
         if (areObjectsAligned(todayTriangle, tomorrowTriangle)) {
             if (isObjectsAlignedWithOrbitCenter(todayTriangle, tomorrowTriangle)) {
-                log.info("Planetas alineados con el sol");
+                result = WeatherType.DROUGHT;
             } else {
-                log.info("Planetas alineados");
+                result = WeatherType.OPTIMAL;
             }
         } else if (todayTriangle.contains(new Point2D.Double(0, 0))) {
             if (isCyclicSystem(celestialObjects) && isTriangleWithMaxPerimeter(todayTriangle, celestialObjects)) {
-                log.info("Planetas encierran el sol con perímetro máximo");
+                result = WeatherType.MAX_INTENSITY_RAIN;
             } else {
-                log.info("Planetas encierran el sol");
+                result = WeatherType.RAIN;
             }
+        } else {
+            result = WeatherType.NORMAL;
         }
 
-        return null;
+        return result;
     }
 
     private int getMaxOrbitPeriod(List<CelestialObject> celestialObjects) {

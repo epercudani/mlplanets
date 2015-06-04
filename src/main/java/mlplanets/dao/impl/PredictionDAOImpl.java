@@ -15,4 +15,11 @@ public class PredictionDAOImpl extends AbstractDAO<Prediction> implements Predic
                 .setProjection(Projections.max("day"))
                 .uniqueResult();
     }
+
+    public Prediction findByDay(SolarSystem solarSystem, long day) {
+        return (Prediction) getAttachedCriteria()
+                .add(Restrictions.eq("solarSystem", solarSystem))
+                .add(Restrictions.eq("day", day))
+                .uniqueResult();
+    }
 }

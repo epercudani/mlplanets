@@ -1,8 +1,6 @@
 package mlplanets.domain;
 
 import mlplanets.enums.WeatherType;
-import org.hibernate.annotations.Type;
-import org.joda.time.LocalDateTime;
 
 import javax.persistence.*;
 
@@ -13,10 +11,10 @@ public class Prediction extends Entity {
     @JoinColumn(name = "solarSystemId", nullable = false, updatable = false, foreignKey = @ForeignKey(name = "FK_Prediction_SolarSyst"))
     private SolarSystem solarSystem;
 
-    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
+    @Column(unique = true)
     private Long day;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private WeatherType weatherType;
 
     public SolarSystem getSolarSystem() {
@@ -27,12 +25,12 @@ public class Prediction extends Entity {
         this.solarSystem = solarSystem;
     }
 
-    public Long getDay() {
+    public long getDay() {
         return day;
     }
 
-    public void setDay(LocalDateTime day) {
-        this.day = this.day;
+    public void setDay(long day) {
+        this.day = day;
     }
 
     public WeatherType getWeatherType() {

@@ -50,6 +50,11 @@ public class AbstractDAO<T extends Entity> implements DAO<T> {
     }
 
     @Override
+    public void addOrUpdate(T entity) {
+        this.getCurrentSession().saveOrUpdate(entity);
+    }
+
+    @Override
     public void delete(T entity) {
         this.getCurrentSession().delete(entity);
     }

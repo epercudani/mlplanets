@@ -15,6 +15,8 @@ public interface DAO<T> {
 
     void update(T entity);
 
+    void addOrUpdate(T entity);
+
     void delete(T entity);
 
     Criteria getAttachedCriteria();

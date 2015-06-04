@@ -3,8 +3,10 @@ package mlplanets.service.impl;
 import mlplanets.dao.PredictionDAO;
 import mlplanets.dao.SolarSystemDAO;
 import mlplanets.domain.CelestialObject;
+import mlplanets.domain.Prediction;
 import mlplanets.domain.SolarSystem;
 import mlplanets.domain.WeatherPredictionStrategy;
+import mlplanets.enums.WeatherType;
 import mlplanets.service.OrbitService;
 import mlplanets.service.SolarSystemService;
 import org.slf4j.Logger;
@@ -17,6 +19,8 @@ import javax.transaction.NotSupportedException;
 public class SolarSystemServiceImpl implements SolarSystemService {
 
     private static final Logger log = LoggerFactory.getLogger(SolarSystemServiceImpl.class);
+
+    private static final int YEARS_TO_PREDICT = 10;
 
     @Autowired
     @SuppressWarnings("UnusedDeclaration")
@@ -35,7 +39,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private PredictionDAO predictionDAO;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public void predictWeatherForSystem(String name, long startingDay) {
 
         SolarSystem solarSystem = ssDAO.findByName(name);
@@ -47,16 +51,27 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         long daysInLongesYear = getDaysInLongestYearForSystem(solarSystem);
         Long lastPredictedDay = predictionDAO.getLastPredictedDay(solarSystem);
         if (lastPredictedDay == null) {
-            lastPredictedDay = 0L;
+            lastPredictedDay = -1L;
         }
-        long predictUpTo = startingDay + (daysInLongesYear * 10);
+        long predictUpTo = startingDay + (daysInLongesYear * YEARS_TO_PREDICT);
 
-        for (long i = lastPredictedDay; i <= predictUpTo; ++i) {
+        for (long i = lastPredictedDay + 1; i <= predictUpTo; ++i) {
 
             log.info("Prediction for day " + i + ":");
 
             try {
-                weatherPredictionStrategy.predict(i, solarSystem.getCelestialObjects());
+                WeatherType weatherType = weatherPredictionStrategy.predict(i, solarSystem.getCelestialObjects());
+
+                Prediction prediction = predictionDAO.findByDay(solarSystem, i);
+                if (prediction == null) {
+                    prediction = new Prediction();
+                }
+
+                prediction.setSolarSystem(solarSystem);
+                prediction.setDay(i);
+                prediction.setWeatherType(weatherType);
+
+                predictionDAO.addOrUpdate(prediction);
             } catch (NotSupportedException e) {
                 log.error(e.getLocalizedMessage());
                 break;

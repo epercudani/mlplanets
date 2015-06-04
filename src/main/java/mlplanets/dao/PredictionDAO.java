@@ -6,4 +6,6 @@ import mlplanets.domain.SolarSystem;
 public interface PredictionDAO extends DAO<Prediction> {
 
     Long getLastPredictedDay(SolarSystem solarSystem);
+
+    Prediction findByDay(SolarSystem solarSystem, long day);
 }
