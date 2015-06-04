@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.NotSupportedException;
 
+@Transactional(readOnly = true)
 public class SolarSystemServiceImpl implements SolarSystemService {
 
     private static final Logger log = LoggerFactory.getLogger(SolarSystemServiceImpl.class);
@@ -28,7 +29,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
 
     @Autowired
     @SuppressWarnings("UnusedDeclaration")
-    private SolarSystemDAO ssDAO;
+    private SolarSystemDAO solarSystemDAO;
 
     @Autowired
     @SuppressWarnings("UnusedDeclaration")
@@ -42,7 +43,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     @Transactional(readOnly = false)
     public void predictWeatherForSystem(String name, long startingDay) {
 
-        SolarSystem solarSystem = ssDAO.findByName(name);
+        SolarSystem solarSystem = solarSystemDAO.findByName(name);
 
         if (solarSystem == null) {
             throw new IllegalArgumentException("El sistema solar " + name + "no existe");
@@ -95,5 +96,22 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         }
 
         return daysInLongestYear;
+    }
+
+    @Override
+    public Prediction getPredictionForDay(SolarSystem solarSystem, long day) {
+        return predictionDAO.findByDay(solarSystem, day);
+    }
+
+    @Override
+    public Prediction getPredictionForDay(long day) {
+
+        SolarSystem solarSystem = solarSystemDAO.findUnique();
+
+        if (solarSystem != null) {
+            return getPredictionForDay(solarSystem, day);
+        }
+
+        return null;
     }
 }

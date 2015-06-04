@@ -1,3 +1,4 @@
 rootProject.name = 'mlplanets'
 include 'mlplanets-domain'
+include 'mlplanets-web-services'
 

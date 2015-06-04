@@ -17,7 +17,7 @@ public class Application {
     public static void main(String args[]) {
 
         if (args.length >= 1) {
-            ApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"application_context.xml"});
+            ApplicationContext context = new ClassPathXmlApplicationContext(new String[] {"domain-context.xml"});
             Application application = context.getBean(Application.class);
 
             String solarSystemName = args[0];
