@@ -17,5 +17,5 @@
     <bean class="com.mlinc.mlplanets.domain.Application" />
     <bean class="com.mlinc.mlplanets.domain.ApplicationInitializerImpl" />
 
-    <bean class="com.mlinc.mlplanets.domain.model.WeatherPredictionByPlanetAligmnent" />
+    <bean class="com.mlinc.mlplanets.domain.service.impl.WeatherPredictionByPlanetAligmnent" />
 </beans>

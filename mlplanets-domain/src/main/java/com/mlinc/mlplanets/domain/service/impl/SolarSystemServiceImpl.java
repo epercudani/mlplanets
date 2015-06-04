@@ -5,18 +5,22 @@ import com.mlinc.mlplanets.domain.dao.SolarSystemDAO;
 import com.mlinc.mlplanets.domain.enums.WeatherType;
 import com.mlinc.mlplanets.domain.model.Prediction;
 import com.mlinc.mlplanets.domain.model.SolarSystem;
-import com.mlinc.mlplanets.domain.model.WeatherPredictionStrategy;
+import com.mlinc.mlplanets.domain.service.WeatherPredictionStrategy;
 import com.mlinc.mlplanets.domain.model.CelestialObject;
 import com.mlinc.mlplanets.domain.service.OrbitService;
 import com.mlinc.mlplanets.domain.service.SolarSystemService;
+import com.mlinc.mlplanets.transport.PredictionDTO;
+import com.mlinc.mlplanets.transport.PredictionSummaryDTO;
+import com.mlinc.mlplanets.transport.TransformUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.NotSupportedException;
+import java.util.List;
 
-@Transactional(readOnly = true)
+@Transactional(readOnly = false)
 public class SolarSystemServiceImpl implements SolarSystemService {
 
     private static final Logger log = LoggerFactory.getLogger(SolarSystemServiceImpl.class);
@@ -40,14 +44,7 @@ public class SolarSystemServiceImpl implements SolarSystemService {
     private PredictionDAO predictionDAO;
 
     @Override
-    @Transactional(readOnly = false)
-    public void predictWeatherForSystem(String name, long startingDay) {
-
-        SolarSystem solarSystem = solarSystemDAO.findByName(name);
-
-        if (solarSystem == null) {
-            throw new IllegalArgumentException("El sistema solar " + name + "no existe");
-        }
+    public void predictWeatherForSystem(SolarSystem solarSystem, long startingDay) {
 
         long daysInLongesYear = getDaysInLongestYearForSystem(solarSystem);
         Long lastPredictedDay = predictionDAO.getLastPredictedDay(solarSystem);
@@ -78,10 +75,51 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         }
     }
 
+    @Override
+    public void predictWeatherForSystem(long startingDay) throws NotSupportedException {
+        predictWeatherForSystem(getUniqueSolarSystem(), startingDay);
+    }
+
+    @Override
+    public PredictionDTO getPredictionForDay(SolarSystem solarSystem, long day) {
+        return TransformUtils.transformToPredictionDTOFromPrediction(predictionDAO.findByDay(solarSystem, day));
+    }
+
+    @Override
+    public PredictionDTO getPredictionForDay(long day) throws NotSupportedException {
+        return getPredictionForDay(getUniqueSolarSystem(), day);
+    }
+
+    @Override
+    public PredictionSummaryDTO getPredictionSummarySince(SolarSystem solarSystem, long startingDay) {
+
+        long endDay = startingDay + getDaysInLongestYearForSystem(solarSystem) * YEARS_TO_PREDICT;
+
+        predictWeatherForSystem(solarSystem, startingDay);
+
+        PredictionSummaryDTO predictionSummaryDTO = new PredictionSummaryDTO();
+        predictionSummaryDTO.setPeriodosDeSequia(predictionDAO.getQuantityOfDaysForTypeBetween(solarSystem, WeatherType.DROUGHT, startingDay, endDay));
+        predictionSummaryDTO.setPeriodosDeLluvia(predictionDAO.getQuantityOfDaysForTypeBetween(solarSystem, WeatherType.RAIN, startingDay, endDay));
+        predictionSummaryDTO.setPeriodosDeClimaOptimo(predictionDAO.getQuantityOfDaysForTypeBetween(solarSystem, WeatherType.OPTIMAL, startingDay, endDay));
+
+        List<Long> daysList = predictionDAO.getDaysOfMaxRain(solarSystem, startingDay, endDay);
+        Long[] daysArray = new Long[daysList.size()];
+        daysList.toArray(daysArray);
+
+        predictionSummaryDTO.setDiasDeMaximasLluvias(daysArray);
+
+        return predictionSummaryDTO;
+    }
+
+    @Override
+    public PredictionSummaryDTO getPredictionSummarySince(long startingDay) throws NotSupportedException {
+        return getPredictionSummarySince(getUniqueSolarSystem(), startingDay);
+    }
+
     /*
-        Obtiene la cantidad de dias que le toma al planeta con orbita mas larga dar una vuelta completa
-            alrededor del centro.
-     */
+            Obtiene la cantidad de dias que le toma al planeta con orbita mas larga dar una vuelta completa
+                alrededor del centro.
+         */
     private long getDaysInLongestYearForSystem(SolarSystem system) {
 
         long daysInLongestYear = 0, daysInYear;
@@ -98,20 +136,13 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         return daysInLongestYear;
     }
 
-    @Override
-    public Prediction getPredictionForDay(SolarSystem solarSystem, long day) {
-        return predictionDAO.findByDay(solarSystem, day);
-    }
-
-    @Override
-    public Prediction getPredictionForDay(long day) {
-
+    private SolarSystem getUniqueSolarSystem() throws NotSupportedException {
         SolarSystem solarSystem = solarSystemDAO.findUnique();
 
-        if (solarSystem != null) {
-            return getPredictionForDay(solarSystem, day);
+        if (solarSystem == null) {
+            throw new NotSupportedException("Existe mas de un sistema solar definido");
         }
 
-        return null;
+        return solarSystem;
     }
 }

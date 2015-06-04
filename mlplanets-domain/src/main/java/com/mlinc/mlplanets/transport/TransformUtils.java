@@ -6,10 +6,14 @@ public class TransformUtils {
 
     public static PredictionDTO transformToPredictionDTOFromPrediction(Prediction prediction) {
 
+        if (prediction == null) {
+            return null;
+        }
+
         PredictionDTO predictionDTO = new PredictionDTO();
-        predictionDTO.setSolarSystem(prediction.getSolarSystem().getName());
-        predictionDTO.setDay(prediction.getDay());
-        predictionDTO.setWeatherType(prediction.getWeatherType().toString());
+        predictionDTO.setSistemaSolar(prediction.getSolarSystem().getName());
+        predictionDTO.setDia(prediction.getDay());
+        predictionDTO.setClima(prediction.getWeatherType().toString());
 
         return predictionDTO;
     }

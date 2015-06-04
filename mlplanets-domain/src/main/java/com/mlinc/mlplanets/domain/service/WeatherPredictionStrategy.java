@@ -1,6 +1,7 @@
-package com.mlinc.mlplanets.domain.model;
+package com.mlinc.mlplanets.domain.service;
 
 import com.mlinc.mlplanets.domain.enums.WeatherType;
+import com.mlinc.mlplanets.domain.model.CelestialObject;
 
 import javax.transaction.NotSupportedException;
 import java.util.List;

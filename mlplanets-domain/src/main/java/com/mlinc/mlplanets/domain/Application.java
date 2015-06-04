@@ -41,6 +41,6 @@ public class Application {
 
     public void run(String solarSystemName, long startingDay) {
         initializer.initialize();
-        ssService.predictWeatherForSystem(solarSystemName, startingDay);
+        //ssService.predictWeatherForSystem(solarSystemName, startingDay);
     }
 }

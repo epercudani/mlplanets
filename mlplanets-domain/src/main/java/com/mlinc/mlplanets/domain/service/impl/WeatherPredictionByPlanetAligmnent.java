@@ -1,7 +1,9 @@
-package com.mlinc.mlplanets.domain.model;
+package com.mlinc.mlplanets.domain.service.impl;
 
 import com.mlinc.mlplanets.domain.enums.WeatherType;
+import com.mlinc.mlplanets.domain.model.CelestialObject;
 import com.mlinc.mlplanets.domain.service.CelestialObjectService;
+import com.mlinc.mlplanets.domain.service.WeatherPredictionStrategy;
 import com.mlinc.mlplanets.domain.util.Triangle2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

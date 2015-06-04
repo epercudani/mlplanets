@@ -2,31 +2,31 @@ package com.mlinc.mlplanets.transport;
 
 public class PredictionDTO {
 
-    String solarSystem;
-    long day;
-    String weatherType;
+    String sistemaSolar;
+    long dia;
+    String clima;
 
-    public String getSolarSystem() {
-        return solarSystem;
+    public String getSistemaSolar() {
+        return sistemaSolar;
     }
 
-    public void setSolarSystem(String solarSystem) {
-        this.solarSystem = solarSystem;
+    public void setSistemaSolar(String sistemaSolar) {
+        this.sistemaSolar = sistemaSolar;
     }
 
-    public long getDay() {
-        return day;
+    public long getDia() {
+        return dia;
     }
 
-    public void setDay(long day) {
-        this.day = day;
+    public void setDia(long dia) {
+        this.dia = dia;
     }
 
-    public String getWeatherType() {
-        return weatherType;
+    public String getClima() {
+        return clima;
     }
 
-    public void setWeatherType(String weatherType) {
-        this.weatherType = weatherType;
+    public void setClima(String clima) {
+        this.clima = clima;
     }
 }

@@ -1,13 +1,22 @@
 package com.mlinc.mlplanets.domain.service;
 
-import com.mlinc.mlplanets.domain.model.Prediction;
 import com.mlinc.mlplanets.domain.model.SolarSystem;
+import com.mlinc.mlplanets.transport.PredictionDTO;
+import com.mlinc.mlplanets.transport.PredictionSummaryDTO;
+
+import javax.transaction.NotSupportedException;
 
 public interface SolarSystemService {
 
-    void predictWeatherForSystem(String name, long startingDay);
+    void predictWeatherForSystem(SolarSystem solarSystem, long startingDay);
 
-    Prediction getPredictionForDay(SolarSystem solarSystem, long day);
+    void predictWeatherForSystem(long startingDay) throws NotSupportedException;
 
-    Prediction getPredictionForDay(long day);
+    PredictionDTO getPredictionForDay(SolarSystem solarSystem, long day);
+
+    PredictionDTO getPredictionForDay(long day) throws NotSupportedException;
+
+    PredictionSummaryDTO getPredictionSummarySince(SolarSystem solarSystem, long startingDay);
+
+    PredictionSummaryDTO getPredictionSummarySince(long startingDay) throws NotSupportedException;
 }
