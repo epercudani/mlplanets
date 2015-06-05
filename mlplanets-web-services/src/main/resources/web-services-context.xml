@@ -12,6 +12,8 @@
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <import resource="classpath:domain-context.xml" />
+    <import resource="job.xml" />
+
     <context:component-scan base-package="com.mlinc.mlplanets.web_services"/>
     <mvc:annotation-driven />
 

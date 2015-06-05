@@ -1,5 +1,6 @@
 package com.mlinc.mlplanets.domain;
 
+import com.mlinc.mlplanets.domain.initialization.ApplicationInitializer;
 import com.mlinc.mlplanets.domain.service.SolarSystemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

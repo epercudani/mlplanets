@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="predictWeatherForNextDayJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="SolarSystemService" />
+        <property name="targetMethod" value="predictWeatherForNextDay" />
+    </bean>
+
+    <bean id="predictWeatherForNextDayCronTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    <property name="jobDetail" ref="predictWeatherForNextDayJobDetail" />
+    <property name="cronExpression" value="0 0 0 1/1 * ? *" />
+    <property name="timeZone">
+        <bean class="java.util.TimeZone" factory-method="getTimeZone">
+            <constructor-arg value="America/Argentina/Buenos_Aires"/>
+        </bean>
+    </property>
+    </bean>
+
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <property name="jobDetails">
+        <list>
+            <ref bean="predictWeatherForNextDayJobDetail" />
+        </list>
+    </property>
+
+    <property name="triggers">
+        <list>
+            <ref bean="predictWeatherForNextDayCronTrigger" />
+        </list>
+    </property>
+    </bean>
+</beans>

@@ -1,17 +1,32 @@
-package com.mlinc.mlplanets.domain;
+package com.mlinc.mlplanets.domain.initialization;
 
+import com.mlinc.mlplanets.domain.Application;
 import com.mlinc.mlplanets.domain.dao.CelestialObjectDAO;
 import com.mlinc.mlplanets.domain.dao.SolarSystemDAO;
 import com.mlinc.mlplanets.domain.model.CelestialObject;
 import com.mlinc.mlplanets.domain.model.SolarSystem;
 import com.mlinc.mlplanets.domain.service.CelestialObjectService;
 import com.mlinc.mlplanets.domain.service.OrbitService;
+import com.mlinc.mlplanets.domain.service.SolarSystemService;
 import com.mlinc.mlplanets.domain.util.CelestialObjectFactory;
 import com.mlinc.mlplanets.domain.util.OrbitFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ApplicationInitializerImpl implements ApplicationInitializer {
+public class ApplicationInitializerImpl implements ApplicationListener<ContextRefreshedEvent>, ApplicationInitializer {
+
+    private static Logger log = LoggerFactory.getLogger(ApplicationInitializerImpl.class);
+
+    // Referencia a si mismo pero con aspectos
+    private ApplicationInitializer self;
+
+    boolean initialized = false;
+
+    private Object lock = new Object();
 
     @Autowired
     private SolarSystemDAO ssDAO;
@@ -25,8 +40,30 @@ public class ApplicationInitializerImpl implements ApplicationInitializer {
     @Autowired
     private OrbitService orbitService;
 
-    @Transactional
+    @Autowired
+    SolarSystemService ssService;
+
     @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+
+        synchronized (lock) {
+            if (initialized) {
+                return;
+            }
+
+            initialized = true;
+        }
+
+        log.info("Application context started");
+
+        if (self == null)
+            self = event.getApplicationContext().getBean(ApplicationInitializer.class);
+
+        self.initialize();
+    }
+
+    @Override
+    @Transactional
     public void initialize() {
 
         SolarSystem ss = ssDAO.findByName("ML");
@@ -55,6 +92,14 @@ public class ApplicationInitializerImpl implements ApplicationInitializer {
         if (co == null) {
             co = CelestialObjectFactory.create("Vulcano", OrbitFactory.create(1000, 5), ss);
             coDAO.add(co);
+        }
+
+        ssDAO.update(ss);
+
+        try {
+            ssService.predictWeatherForSystem(0L);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

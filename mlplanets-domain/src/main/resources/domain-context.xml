@@ -14,8 +14,7 @@
     <import resource="daos.xml" />
     <import resource="services.xml" />
 
-    <bean class="com.mlinc.mlplanets.domain.Application" />
-    <bean class="com.mlinc.mlplanets.domain.ApplicationInitializerImpl" />
+    <bean class="com.mlinc.mlplanets.domain.initialization.ApplicationInitializerImpl" />
 
     <bean class="com.mlinc.mlplanets.domain.service.impl.WeatherPredictionByPlanetAligmnent" />
 </beans>

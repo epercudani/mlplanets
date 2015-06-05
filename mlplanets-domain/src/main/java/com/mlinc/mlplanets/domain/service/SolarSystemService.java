@@ -12,6 +12,8 @@ public interface SolarSystemService {
 
     void predictWeatherForSystem(long startingDay) throws NotSupportedException;
 
+    void predictWeatherForNextDay() throws NotSupportedException;
+
     PredictionDTO getPredictionForDay(SolarSystem solarSystem, long day);
 
     PredictionDTO getPredictionForDay(long day) throws NotSupportedException;

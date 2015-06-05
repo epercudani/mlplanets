@@ -11,6 +11,7 @@ public class CelestialObjectFactory {
         celestialObject.setName(name);
         celestialObject.setOrbit(orbit);
         celestialObject.setSolarSystem(solarSystem);
+        solarSystem.getCelestialObjects().add(celestialObject);
 
         return celestialObject;
     }

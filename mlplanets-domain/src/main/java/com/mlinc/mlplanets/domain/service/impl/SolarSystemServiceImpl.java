@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.NotSupportedException;
 import java.util.List;
+import java.util.TimeZone;
 
 @Transactional(readOnly = false)
 public class SolarSystemServiceImpl implements SolarSystemService {
@@ -56,28 +57,47 @@ public class SolarSystemServiceImpl implements SolarSystemService {
         for (long i = lastPredictedDay + 1; i <= predictUpTo; ++i) {
 
             try {
-                WeatherType weatherType = weatherPredictionStrategy.predict(i, solarSystem.getCelestialObjects());
-
-                Prediction prediction = predictionDAO.findByDay(solarSystem, i);
-                if (prediction == null) {
-                    prediction = new Prediction();
-                }
-
-                prediction.setSolarSystem(solarSystem);
-                prediction.setDay(i);
-                prediction.setWeatherType(weatherType);
-
-                predictionDAO.addOrUpdate(prediction);
+                createPredictionForDay(solarSystem, i);
             } catch (NotSupportedException e) {
-                log.error(e.getLocalizedMessage());
+                e.printStackTrace();
                 break;
             }
         }
     }
 
+    private void createPredictionForDay(SolarSystem solarSystem, long day) throws NotSupportedException {
+
+        WeatherType weatherType = weatherPredictionStrategy.predict(day, solarSystem.getCelestialObjects());
+
+        Prediction prediction = predictionDAO.findByDay(solarSystem, day);
+        if (prediction == null) {
+            prediction = new Prediction();
+        }
+
+        prediction.setSolarSystem(solarSystem);
+        prediction.setDay(day);
+        prediction.setWeatherType(weatherType);
+
+        predictionDAO.addOrUpdate(prediction);
+    }
+
     @Override
     public void predictWeatherForSystem(long startingDay) throws NotSupportedException {
         predictWeatherForSystem(getUniqueSolarSystem(), startingDay);
+    }
+
+    @Override
+    public void predictWeatherForNextDay() throws NotSupportedException {
+
+        SolarSystem solarSystem = getUniqueSolarSystem();
+
+        TimeZone tz = TimeZone.getTimeZone("America/Argentina/Buenos_Aires");
+        log.info(tz.getDisplayName());
+        Long lastPredictedDay = predictionDAO.getLastPredictedDay(solarSystem);
+
+        log.info("Predicting weather for day " + (lastPredictedDay + 1));
+
+        createPredictionForDay(getUniqueSolarSystem(), lastPredictedDay + 1);
     }
 
     @Override

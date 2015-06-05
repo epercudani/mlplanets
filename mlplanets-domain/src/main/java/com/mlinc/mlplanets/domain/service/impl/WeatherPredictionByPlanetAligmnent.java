@@ -28,7 +28,7 @@ public class WeatherPredictionByPlanetAligmnent implements WeatherPredictionStra
 
         if (celestialObjects.size() != SUPPORTED_OBJECTS_QUANTITY) {
             throw new NotSupportedException("La estrategia de prediccion actual solo soporta sistemas con " +
-                    SUPPORTED_OBJECTS_QUANTITY + "planetas.");
+                    SUPPORTED_OBJECTS_QUANTITY + " planetas. Existen: " + celestialObjects.size());
         }
 
         Point2D[] todayPositionsPoints = getPositionsAsPointsArray(day, celestialObjects);

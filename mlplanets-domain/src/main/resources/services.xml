@@ -7,6 +7,6 @@
 
     <bean class="com.mlinc.mlplanets.domain.service.impl.CelestialObjectServiceImpl" />
     <bean class="com.mlinc.mlplanets.domain.service.impl.OrbitServiceImpl" />
-    <bean class="com.mlinc.mlplanets.domain.service.impl.SolarSystemServiceImpl" />
+    <bean id="SolarSystemService" class="com.mlinc.mlplanets.domain.service.impl.SolarSystemServiceImpl" />
 
 </beans>
